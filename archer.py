@@ -756,6 +756,9 @@ def parse_argv():
     parser.add_argument('-p', '--password',
                         dest='password',
                         help="Password to use for login")
+    parser.add_argument('-P','--protocol',
+                        dest='protocol',
+                        help="Protocol to use (http/https)")
     parser.add_argument("-i", "--info",
                         action="store_true", dest="version", default=False,
                         help="print version and exit")
