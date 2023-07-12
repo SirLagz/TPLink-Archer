@@ -24,6 +24,7 @@ try:
 except:
     print('config.py does not exist. Importing generator')
     import initConfig	# Check / Update / Create config.py module
+    print('importing')
     
 # My own AES crypto
 import MyAESCrypto
@@ -103,11 +104,12 @@ class MyXcryptor():
 
 ####
 class Archer:
-    def __init__(self, hostName, userName, userPassword, session):
+    def __init__(self, hostName, userName, userPassword, session, protocol):
         self._hostName = hostName
         self._name     = userName
         self._password = userPassword
         self._session  = session
+        self._protocol = protocol
         
         self._md5Hash = ''
         self._aesKey  = ''
@@ -130,7 +132,7 @@ class Archer:
         }
         self._headers = Headers(self._protoHeaders)
         self._headers.setHeader('Host', self._hostName)
-        self._headers.setHeader('Referer', 'http://%s/' % (self._hostName))
+        self._headers.setHeader('Referer', self._protocol+'://%s/' % (self._hostName))
 
         # Requests to send with _cgi_gdpr() script
         self._configInfoCgiGdprRqst = dict()
@@ -201,10 +203,10 @@ class Archer:
 
     # HTTP Requests
     def initialPage(self, doParse):
-        url = '%s%s' % ('http://', self._hostName)
+        url = '%s%s' % (self._protocol+'://', self._hostName)
         myprint('GET(): %s' % url)
         #myprint('Headers=', self.headers)
-        r = self._session.get(url, headers=self.headers)
+        r = self._session.get(url, headers=self.headers,verify=False)
         myprint('response code:',r.status_code)
         myprint('response headers:',r.headers)
         if r.status_code != 200:
@@ -236,7 +238,7 @@ class Archer:
                 myprint('%s = %s' % (varName, self.token))
     
     def getParm(self, *argv):
-        baseurl = 'http://%s/cgi/getParm' % self._hostName
+        baseurl = self._protocol+'://%s/cgi/getParm' % self._hostName
         
         if len(argv):
             param = '?%s' % (argv[0])
@@ -248,14 +250,14 @@ class Archer:
             h['Content-Type'] = 'text/plain'
             h['TokenID']      = self.token
             myprint('self.headers=',h)
-            r = self._session.get(url, headers=h)
+            r = self._session.get(url, headers=h,verify=False)
         else:
             myprint('POST(): %s' % baseurl)
             h = self.headers
             h['Accept'] = '*/*'
-            h['Origin'] = 'http://%s' % (self._hostName)
+            h['Origin'] = self._protocol+'://%s' % (self._hostName)
             myprint('self.headers=',h)
-            r = self._session.post(baseurl, headers=h)
+            r = self._session.post(baseurl, headers=h,verify=False)
             
         myprint('response code:',r.status_code)
         myprint('response headers:',r.headers)
@@ -265,20 +267,20 @@ class Archer:
                 sys.exit(1)
         
     def loadinggif(self):
-        url = 'http://%s/img/loading.gif' % self._hostName
+        url = self._protocol+'://%s/img/loading.gif' % self._hostName
         myprint('GET(): %s' % url)
 
         h = self.headers
         h['Accept'] = 'image/avif,image/webp,image/apng,image/*,*/*;q=0.8'
 
-        r = self._session.get(url, headers=h)
+        r = self._session.get(url, headers=h,verify=False)
         myprint('response code:',r.status_code)
         myprint('response headers:',r.headers)
 
     def getBusy(self):
-        url = 'http://%s/cgi/getBusy' % self._hostName
+        url = self._protocol+'://%s/cgi/getBusy' % self._hostName
         myprint('POST(): %s' % url)
-        r = self._session.post(url, headers=self.headers)
+        r = self._session.post(url, headers=self.headers,verify=False)
         myprint('response code:',r.status_code)
         myprint('response headers:',r.headers)
         
@@ -291,7 +293,7 @@ class Archer:
     # Download a script
     def getScript(self, *argv):
         args = argv[0]
-        baseurl = 'http://%s/' % self._hostName
+        baseurl = self._protcol+'://%s/' % self._hostName
         scriptFamily = args[0]
         scriptName   = args[1]
         url = '%s%s/%s' %(baseurl, scriptFamily, scriptName)
@@ -299,7 +301,7 @@ class Archer:
             url += '?' + args[i]
 
         myprint('GET(): %s' % url)
-        r = self._session.get(url, headers=self.headers)
+        r = self._session.get(url, headers=self.headers,verify=False)
         myprint('response code:',r.status_code)
         myprint('response headers:',r.headers)
         if r.status_code == 200:
@@ -317,7 +319,7 @@ class Archer:
     def getImage(self, *argv):
         args = argv[0]
 
-        baseurl = 'http://%s/' % self._hostName
+        baseurl = self._protocol+'://%s/' % self._hostName
         scriptFamily = args[0]
         scriptName = args[1]
         url = '%s%s/%s' %(baseurl, scriptFamily, scriptName)
@@ -325,7 +327,7 @@ class Archer:
             url += '?' + args[i]
 
         myprint('GET(): %s' % url)
-        r = self._session.get(url, headers=self.headers)
+        r = self._session.get(url, headers=self.headers,verify=False)
         myprint('response code:',r.status_code)
         myprint('response headers:',r.headers)
         if r.status_code == 200:
@@ -474,17 +476,17 @@ class Archer:
         d = "sign=" + payload['sign'] + "\r\ndata=" + payload['data'] + "\r\n"
         myprint('data=', d)
         
-        url = 'http://%s/cgi_gdpr' % self._hostName
+        url = self._protocol+'://%s/cgi_gdpr' % self._hostName
         myprint('POST(): %s' % url)
 
         h = self.headers
         h['Accept']         = '*/*'
-        h['Origin']         = 'http://%s' % (self._hostName)
+        h['Origin']         = self._protocol+'://%s' % (self._hostName)
         h['Content-Type']   = 'text/plain'
         h['Content-Length'] = str(len(d))
         h['TokenID']        = self.token
 
-        r = self._session.post(url, headers=h, data=d)
+        r = self._session.post(url, headers=h, data=d,verify=False)
         myprint('response code:',r.status_code)
         if r.status_code != 200:
             myprint('Reason:', r.reason)
@@ -532,7 +534,7 @@ class Archer:
         return 0
 
     def _doLogin(self, e, n, action, btn, userInfo):
-        baseurl = 'http://%s/' % self._hostName
+        baseurl = self._protocol+'://%s/' % self._hostName
         script = 'cgi/login'
         sep1 = '?data='
         data = n['data'].replace('=', '%3D').replace('+', '%2B')
@@ -542,7 +544,7 @@ class Archer:
 
         url = '%s%s%s%s%s%s%s' % (baseurl, script, sep1, data, sep2, sign,trailer)
         myprint('POST(): %s' % url)
-        r = self._session.post(url, headers=self.headers)
+        r = self._session.post(url, headers=self.headers,verify=False)
         myprint('response code:',r.status_code)
         if r.status_code != 200:
             myprint('Login failed. code: %d' % r.status_code)
@@ -832,7 +834,7 @@ def main():
                 print('Cannot create log file')
 
         # Create instance of router at hostName, connect with given credentials
-        archer = Archer(config.ROUTER_HOSTNAME, config.ROUTER_USERNAME, config.ROUTER_PASSWORD, session)
+        archer = Archer(config.ROUTER_HOSTNAME, config.ROUTER_USERNAME, config.ROUTER_PASSWORD, session, config.ROUTER_PROTOCOL)
 
         # Read current configuration
         archerConfig = archer.getConfig()

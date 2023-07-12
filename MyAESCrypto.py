@@ -12,7 +12,12 @@ import time
 import random
 import argparse
 
-import config
+try:
+    import config	# Shared global config variables (DEBUG,...)
+except:
+    print('config.py does not exist. Importing generator')
+    import initConfig	# Check / Update / Create config.py module
+    print('importing')
 
 class MyAESCipher:
     def __init__(self, key):
