@@ -207,6 +207,7 @@ class Archer:
         myprint('GET(): %s' % url)
         #myprint('Headers=', self.headers)
         r = self._session.get(url, headers=self.headers,verify=False)
+        myprint('r session established')
         myprint('response code:',r.status_code)
         myprint('response headers:',r.headers)
         if r.status_code != 200:
@@ -239,6 +240,7 @@ class Archer:
     
     def getParm(self, *argv):
         baseurl = self._protocol+'://%s/cgi/getParm' % self._hostName
+        myprint('baseurl :: '+baseurl)
         
         if len(argv):
             param = '?%s' % (argv[0])
@@ -819,6 +821,9 @@ def main():
                 sys.exit(1)
             config.ROUTER_PASSWORD = password
 
+        if not config.ROUTER_PROTOCOL:
+            protocol = 'http'
+
         if args.logFile == None:
             #print('Using stdout')
             pass
@@ -882,6 +887,7 @@ if __name__ == "__main__":
         optionalFields  = [('s','ROUTER_USERNAME'),
                            ('p','ROUTER_PASSWORD'),
                            ('s','ROUTER_HOSTNAME'),
+                           ('s','ROUTER_PROTOCOL'),
                            ('s','LOGFILE')]
                        
         initConfig.initConfig(moduleDirPath, mandatoryFields, optionalFields)
