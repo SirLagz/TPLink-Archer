@@ -6,7 +6,8 @@ get various information from it w/o using the  web interface.
 Basically, it can be used to get the configuration information available on the main page on the
 web interface, e.g.: ISP, Network configuration, DNS information, usage statistics, HW/SW version,...
 
-```usage: archer.py [-h] [-d] [-f [FILE]] [-r HOSTNAME] [-u USERNAME] [-p PASSWORD] [-P PROTOCOL] [-i]
+```
+usage: archer.py [-h] [-d] [-f [FILE]] [-r HOSTNAME] [-u USERNAME] [-p PASSWORD] [-P PROTOCOL] [-i]
 
 Get TP-Link Archer router current configuration, as shown on the first page after login
 
